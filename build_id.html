@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexagon Point Plot</title>
+    <link rel="stylesheet" href="build_id.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+
+<svg width="1000" height="1000" id="hexagonPlot"></svg>
+
+<div id="contextMenu" class="context-menu">
+    <!-- Color options for elements will be generated dynamically -->
+</div>
+
+<div id="nodeContextMenu" class="context-menu">
+    <div class="color-option" data-color="blue">Change to Blue</div>
+</div>
+
+<div class="slider-container">
+    <label for="lineWidth">Line Width:</label>
+    <input type="range" id="lineWidth" min="1" max="10" value="3"><br>
+    <label for="pointRadius">Point Radius:</label>
+    <input type="range" id="pointRadius" min="5" max="20" value="8">
+</div>
+
+<script src="build_id.js"></script>
+</body>
+</html>
