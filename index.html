@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        button {
-            font-size: 16px;
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Index Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    /* Specific styling for the Phase Diagrams button */
+    .red-button {
+      background-color: red;
+    }
+    .red-button:hover {
+      background-color: darkred;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to DSAC Builder</h1>
-    <button onclick="window.location.href='./build/build.html'">Build your DSAC</button>
+  <h1>Welcome to DSAC Builder</h1>
+  <button onclick="window.location.href='./build/build.html'">Build your DSAC</button>
+  <br><br>
+  <button class="red-button" onclick="window.location.href='./phasediagrams.html'">Phase Diagrams</button>
 </body>
 </html>
