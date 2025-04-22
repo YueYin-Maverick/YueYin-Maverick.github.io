@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Selected Plot</title>
+  <link rel="stylesheet" href="single_QV_3D.css">
+  <!-- Three.js core + OrbitControls -->
+  <script src="https://unpkg.com/three@0.142.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.142.0/examples/js/controls/OrbitControls.js"></script>
+  <!-- your 3D scene logic -->
+  <script defer src="single_QV_3D.js"></script>
+</head>
+<body>
+  <div class="single-column">
+    <h1 id="title">Selected Plot</h1>
+    <div id="container" class="plot"></div>
+    <div class="controls">
+      <button id="showOrderButton">Return the DAC ID</button>
+      <div id="orderOutput"></div>
+    </div>
+  </div>
+  <div id="metalMenu"></div>
+</body>
+
+</html>

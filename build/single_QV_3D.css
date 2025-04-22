@@ -1,0 +1,97 @@
+/* 1) Reset & full‑screen */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+body {
+  display: flex;
+  justify-content: center; /* center the column in the viewport */
+  align-items: center;     /* vertically center if you like */
+  background: #f0f0f0;
+  font-family: sans-serif;
+}
+
+/* 2) Single‑column container */
+.single-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;    /* center everything horizontally */
+  row-gap: 20px;          /* space between rows */
+}
+
+/* 3) Plot box stays 800×800 */
+.plot {
+  width: 600px;
+  height: 600px;
+}
+
+/* 4) Title styling */
+#title {
+  margin: 0;
+  font-size: 60px;
+  color: #333;
+  pointer-events: none;
+}
+
+/* 5) Controls styling */
+.controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#showOrderButton {
+  font-size: 30px;
+  padding: 10px 20px;
+  background-color: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#showOrderButton:hover {
+  background-color: #0056b3;
+}
+
+#orderOutput {
+  margin-top: 10px;
+  font-size: 40px;
+  color: #333;
+}
+
+/* 6) Metal‑menu (unchanged) */
+/* 6) Metal‑menu */
+
+/* hidden by default */
+#metalMenu {
+  position: absolute;
+  top: 20px;       /* adjust as needed */
+  right: 20px;
+  display: none;    /* keep this! */
+  background: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+/* only when you add .visible */
+#metalMenu.visible {
+  display: grid;   /* now it shows */
+  grid-template-rows: repeat(5, auto);
+  grid-auto-flow: column;
+  gap: 4px;
+  padding: 4px;
+}
+
+#metalMenu > div {
+  padding: 6px 12px;
+  font-size: 18px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#metalMenu > div:hover {
+  background-color: #f0f0f0;
+}
+
