@@ -31,6 +31,17 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
+  cursor: pointer; /* Makes it clear it's clickable */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plot-container:hover {
+  transform: scale(1.05); /* Slight zoom effect */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Soft shadow to highlight */
+}
+
+.plot:hover {
+  border-color: #666; /* Slightly darker border on hover */
 }
 
 
@@ -68,4 +79,31 @@ h1 {
 
 .color-option:hover {
   background-color: lightgray;
+}
+
+
+#outer {
+  display: flex;
+  justify-content: center;    /* center the group as a whole */
+  align-items: flex-start;    /* top‑align the instruction & wrapper */
+  gap: 20px;                  /* 20px gap between instruction & wrapper */
+  width: 100%; height: 100%;
+  overflow: hidden;
+}
+
+/* style your instruction box */
+#instruction {
+  max-width: 200px;           /* or whatever width you like */
+  text-align: left;
+  font-size: 16px;
+  line-height: 1.4;
+  padding: 10px;
+  background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* keep your existing wrapper centering & scaling intact */
+#wrapper {
+  transform-origin: center center;
 }

@@ -95,3 +95,18 @@ body {
   background-color: #f0f0f0;
 }
 
+/* fixed instruction box on the left */
+#instruction {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  transform: translateY(-50%);
+  width: 200px;            /* adjust as needed */
+  padding: 10px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 20px;
+  line-height: 1.4;
+  z-index: 1000;
+}

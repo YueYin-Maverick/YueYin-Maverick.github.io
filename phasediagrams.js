@@ -1,5 +1,5 @@
 const elements = [
-{symbol: "Al", position:49  ,color:"#9FDAF7"},  
+{symbol: "Al", position:49  ,color:"#B9FFB9"},  
 {symbol: "Sc", position:57  ,color:"#9FDAF7"}, 
 {symbol: "Ti", position:58  ,color:"#9FDAF7"}, 
 {symbol: "V" , position:59  ,color:"#9FDAF7"}, 
@@ -10,8 +10,8 @@ const elements = [
 {symbol: "Ni", position:64  ,color:"#9FDAF7"}, 
 {symbol: "Cu", position:65  ,color:"#9FDAF7"}, 
 {symbol: "Zn", position:66  ,color:"#9FDAF7"}, 
-{symbol: "Ga", position:67  ,color:"#9FDAF7"}, 
-{symbol: "Ge", position:68  ,color:"#9FDAF7"}, 
+{symbol: "Ga", position:67  ,color:"#B9FFB9"}, 
+{symbol: "Ge", position:68  ,color:"#DFEDB8"}, 
 {symbol: "Y" , position:75  ,color:"#9FDAF7"}, 
 {symbol: "Zr", position:76  ,color:"#9FDAF7"}, 
 {symbol: "Nb", position:77  ,color:"#9FDAF7"}, 
@@ -22,9 +22,9 @@ const elements = [
 {symbol: "Pd", position:82  ,color:"#9FDAF7"}, 
 {symbol: "Ag", position:83  ,color:"#9FDAF7"}, 
 {symbol: "Cd", position:84  ,color:"#9FDAF7"}, 
-{symbol: "In", position:85  ,color:"#9FDAF7"}, 
-{symbol: "Sn", position:86  ,color:"#9FDAF7"}, 
-{symbol: "Sb", position:87  ,color:"#9FDAF7"}, 
+{symbol: "In", position:85  ,color:"#B9FFB9"}, 
+{symbol: "Sn", position:86  ,color:"#B9FFB9"}, 
+{symbol: "Sb", position:87  ,color:"#DFEDB8"}, 
 {symbol: "Hf", position:94  ,color:"#9FDAF7"}, 
 {symbol: "Ta", position:95  ,color:"#9FDAF7"}, 
 {symbol: "W ", position:96  ,color:"#9FDAF7"}, 
@@ -33,18 +33,11 @@ const elements = [
 {symbol: "Ir", position:99  ,color:"#9FDAF7"}, 
 {symbol: "Pt", position:100 ,color:"#9FDAF7"}, 
 {symbol: "Au", position:101 ,color:"#9FDAF7"}, 
-{symbol: "Tl", position:103 ,color:"#9FDAF7"}, 
-{symbol: "Pb", position:104 ,color:"#9FDAF7"}, 
-{symbol: "Bi", position:105 ,color:"#9FDAF7"}, 
-{symbol: "Ce", position:148 ,color:"#9FDAF7"}, 
+{symbol: "Tl", position:103 ,color:"#B9FFB9"}, 
+{symbol: "Pb", position:104 ,color:"#B9FFB9"}, 
+{symbol: "Bi", position:105 ,color:"#B9FFB9"}, 
+{symbol: "Ce", position:148 ,color:"#ACFFFF"}, 
 ];
-
-
-const legend = [ 
-{symbol: "Metal", position:25 ,color:"#9FDAF7"}, 
-{symbol: "Non-Metal", position:26 ,color:"#F9B3AD"}, 
-{symbol: "Noble-Gas", position:27 ,color:"#D9DEE7"}, 
-]
 
 
 const positions = [
