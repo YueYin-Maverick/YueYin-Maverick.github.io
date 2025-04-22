@@ -1,6 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Index Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+
+    /* new: wrap both plots in one row */
+    .plots-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 20px;            /* space between plots */
+      margin: 40px auto;
+      width: 90%;
+      max-width: 1000px;
+    }
+
+    .plot-container {
+      flex: 1;              /* each takes equal share */
+      max-width: 45%;       /* at most 45% of row */
+    }
+    .plot-container img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .plot-caption {
+      margin-top: 8px;
+      font-size: 18px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to LOCAL</h1>
+  <div class="plots-row">
+    <div class="plot-container">
+      <img src="fig1.png" alt="Plot 1">
+      <div class="plot-caption">DAC Dataset</div>
+    </div>
+    <div class="plot-container">
+      <img src="fig2.png" alt="Plot 2">
+      <div class="plot-caption">LOCAL Framework</div>
+    </div>
+  </div>
+  <button onclick="window.location.href='./build/build.html'">Build your DAC</button>
+  <br><br>
+  <button class="red-button" onclick="window.location.href='./phasediagrams.html'">Phase Diagrams</button>
+</body>
+</html>
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Index Page</title>
@@ -31,3 +108,4 @@
     <button class="red-button" onclick="window.location.href='./phasediagrams.html'">Phase Diagrams</button>
 </body>
 </html>
+-->
