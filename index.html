@@ -1,6 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Index Page</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin: 20px 0;
+      font-size: 2em;
+    }
+
+    /* wrapper that holds both plots; relative so children can be absolutely positioned */
+    .plots-row {
+      position: relative;
+      width: 100%;
+      height: 55vh; /* enough to show the larger plot */
+      margin: 40px 0;
+    }
+
+    .plot-container {
+      position: absolute;
+      top: 0;
+      transition: left 0.3s ease, width 0.3s ease;
+      overflow: visible;
+    }
+    .plot-container img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .plot-caption {
+      margin-top: 8px;
+      font-size: 1em;
+      color: #333;
+    }
+
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
+      margin: 0 10px 20px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.2s ease;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+
+    footer {
+      padding: 0;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1vw;
+      margin-top: 1vh;
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to LOCAL</h1>
+
+  <div class="plots-row" id="plotsRow">
+    <div class="plot-container" id="plot1">
+      <img src="fig2.png" alt="LOCAL Framework">
+      <div class="plot-caption">LOCAL Framework</div>
+    </div>
+    <div class="plot-container" id="plot2">
+      <img src="fig1.png" alt="DAC Dataset">
+      <div class="plot-caption">DAC Dataset</div>
+    </div>
+  </div>
+
+  <button onclick="window.location.href='./build/build.html'">Build your DAC</button>
+  <button onclick="window.location.href='./phasediagrams.html'">Phase Diagrams</button>
+
+  <footer>
+    <p>&copy; 2025 Yue Yin, Jiangshan He, and Hai Xiao. All rights reserved.</p>
+    <p>Contact: <a href="mailto:yiny21@mails.tsinghua.edu.cn">yiny21@mails.tsinghua.edu.cn</a></p>
+  </footer>
+
+  <script>
+    (function(){
+      const plot1 = document.getElementById('plot1');
+      const plot2 = document.getElementById('plot2');
+      const wrapper = document.getElementById('plotsRow');
+      let active = 'plot1';
+
+      function positionPlots() {
+        const W = window.innerWidth;
+        const AW = W * 0.5;   // active width = 40vw
+        const IW = W * 0.1;   // inactive width = 20vw
+        const gap = W * 0.01; // 2vw gap
+
+        if (active === 'plot1') {
+          // center plot1
+          plot1.style.width = AW + 'px';
+          plot1.style.left  = ((W - AW) / 2) + 'px';
+          // place plot2 to the right of plot1
+          plot2.style.width = IW + 'px';
+          plot2.style.left  = ((W - AW) / 2 + AW + gap) + 'px';
+        } else {
+          // center plot2
+          plot2.style.width = AW + 'px';
+          plot2.style.left  = ((W - AW) / 2) + 'px';
+          // place plot1 to the left of plot2
+          plot1.style.width = IW + 'px';
+          plot1.style.left  = ((W - AW) / 2 - gap - IW) + 'px';
+        }
+      }
+
+      // initial layout
+      positionPlots();
+
+      // re-layout on resize
+      window.addEventListener('resize', positionPlots);
+
+      // swap on hover
+      plot1.addEventListener('mouseenter', () => {
+        active = 'plot1';
+        positionPlots();
+      });
+      plot2.addEventListener('mouseenter', () => {
+        active = 'plot2';
+        positionPlots();
+      });
+
+      // optional: when mouse leaves the plots area, snap back to plot1
+      wrapper.addEventListener('mouseleave', () => {
+        active = 'plot1';
+        positionPlots();
+      });
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Index Page</title>
@@ -24,21 +174,30 @@
       background-color: #45a049;
     }
 
+    footer {
+      padding: 0;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1vw;
+      margin-top: 1vh;
+    }
+
     /* new: wrap both plots in one row */
     .plots-row {
       display: flex;
+      flex-direction: column;   /* ← stack vertically */
       justify-content: center;
-      align-items: flex-start;
-      gap: 20px;            /* space between plots */
+      align-items: center;
+      gap: 20px;                /* space between plots */
       margin: 40px auto;
       width: 90%;
-      max-width: 1000px;
+      max-width: 600px;         /* narrower for vertical layout */
     }
 
     .plot-container {
-      flex: 1;              /* each takes equal share */
-      max-width: 45%;       /* at most 45% of row */
+      width: 100%;              /* full width of the .plots-row */
     }
+
     .plot-container img {
       width: 100%;
       height: auto;
@@ -46,6 +205,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
+
     .plot-caption {
       margin-top: 8px;
       font-size: 18px;
@@ -68,44 +228,10 @@
   <button onclick="window.location.href='./build/build.html'">Build your DAC</button>
   <br><br>
   <button class="red-button" onclick="window.location.href='./phasediagrams.html'">Phase Diagrams</button>
-</body>
-</html>
-
-
-
-
-<!--
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index Page</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        button {
-            font-size: 16px;
-            padding: 10px 20px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
-</head>
-<body>
-    <h1>Welcome to DSAC Builder</h1>
-    <button onclick="window.location.href='./build/build.html'">Build your DSAC</button>
-    <br><br>
-    <button class="red-button" onclick="window.location.href='./phasediagrams.html'">Phase Diagrams</button>
+  <footer>
+    <p>&copy; 2025 Yue Yin, Jiangshan He, and Hai Xiao. All rights reserved.</p>
+    <p>Contact: <a href="mailto:yiny21@mails.tsinghua.edu.cn">yiny21@mails.tsinghua.edu.cn</a></p>
+  </footer>
 </body>
 </html>
 -->

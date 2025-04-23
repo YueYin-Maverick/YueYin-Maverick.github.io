@@ -13,10 +13,11 @@ const defaultCmCutoff   = 80;   // C–M / M–C cutoff
   const titleEl      = document.getElementById('title');
   const container    = document.getElementById('container');
   const showOrderBtn = document.getElementById('showOrderButton');
+  const downloadBtn  = document.getElementById('downloadVasp');
   const orderOutput  = document.getElementById('orderOutput');
   const menu         = document.getElementById('metalMenu');
 
-  // —— Pick JSON ——  
+  // —— Pick JSON file based on ?plot=hexagonPlotX ——  
   const params = new URLSearchParams(window.location.search);
   const plotId = params.get('plot') || 'hexagonPlot1';
   const jsonFile = {
@@ -68,32 +69,26 @@ const defaultCmCutoff   = 80;   // C–M / M–C cutoff
     { element: "Bi", color: "#DDA0DD", radius: 151 }
   ];
 
-  // build lookup maps
   const elementColorMap  = {};
   const elementRadiusMap = {};
-  elementColorsList.forEach(({ element, color, radius }) => {
+  elementColorsList.forEach(({element,color,radius})=>{
     elementColorMap[element]  = new THREE.Color(color);
     elementRadiusMap[element] = radius;
   });
-  // ensure C/N/M have a default color & radius
   elementColorMap["C"] = new THREE.Color("#888888");
   elementColorMap["N"] = new THREE.Color("#0000FF");
-  elementRadiusMap["C"] = elementRadiusMap["C"] || 70;
-  elementRadiusMap["N"] = elementRadiusMap["N"] || 70;
-
-  // for normalizing radii → px
-  const maxRadius = Math.max(...elementColorsList.map(e => e.radius));
+  elementRadiusMap["C"] = elementRadiusMap["C"]||70;
+  elementRadiusMap["N"] = elementRadiusMap["N"]||70;
+  const maxRadius = Math.max(...elementColorsList.map(e=>e.radius));
 
   // —— Three.js boilerplate ——  
   const scene    = new THREE.Scene();
-  const camera   = new THREE.PerspectiveCamera(
-    45, container.clientWidth/container.clientHeight, 1, 10000
-  );
+  const camera   = new THREE.PerspectiveCamera(45, container.clientWidth/container.clientHeight, 1, 10000);
   camera.position.set(0,0,600);
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  const renderer = new THREE.WebGLRenderer({antialias:true});
   renderer.setSize(container.clientWidth, container.clientHeight);
   container.appendChild(renderer.domElement);
-  renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
+  renderer.domElement.addEventListener('contextmenu', e=>e.preventDefault());
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   scene.add(new THREE.AmbientLight(0x888888));
@@ -101,22 +96,23 @@ const defaultCmCutoff   = 80;   // C–M / M–C cutoff
   dirLight.position.set(1,1,1);
   scene.add(dirLight);
 
-  // —— Load data & build atoms ——  
-  const data = await fetch(jsonFile).then(r => r.json());
-  const metalSites = data.filter(d => d.class === 'M');
-  if (metalSites.length >= 2) {
+  // —— Load JSON data & build atoms ——  
+  const data = await fetch(jsonFile).then(r=>r.json());
+  // preset metals for the first two M sites
+  const metalSites = data.filter(d=>d.class==='M');
+  if (metalSites.length>=2) {
     metalSites[0].element = 'Ag';
     metalSites[1].element = 'Au';
   }
   let nCount = 1;
-  data.forEach(d => { if (d.class === 'N') d.order = nCount++; });
+  data.forEach(d=>{ if(d.class==='N') d.order = nCount++; });
 
-  // compute scaled positions
-  const xs = data.map(d => d.x), ys = data.map(d => d.y);
-  const [Xmin, Xmax] = [Math.min(...xs), Math.max(...xs)];
-  const [Ymin, Ymax] = [Math.min(...ys), Math.max(...ys)];
-  const scale = (v,mn,mx) => ((v - mn)/(mx - mn) - 0.5) * 400;
-  data.forEach(d => {
+  // scale positions into a -200..+200 box
+  const xs = data.map(d=>d.x), ys = data.map(d=>d.y);
+  const [Xmin,Xmax] = [Math.min(...xs), Math.max(...xs)];
+  const [Ymin,Ymax] = [Math.min(...ys), Math.max(...ys)];
+  const scale = (v,mn,mx)=>((v-mn)/(mx-mn)-0.5)*400;
+  data.forEach(d=>{
     d._pos = new THREE.Vector3(
       scale(d.x, Xmin, Xmax),
       scale(d.y, Ymin, Ymax),
@@ -124,165 +120,190 @@ const defaultCmCutoff   = 80;   // C–M / M–C cutoff
     );
   });
 
-  // build atom meshes
+  // create atom meshes
   const atomGroup = new THREE.Group();
-  data.forEach(d => {
-    // fallback color/radius if map missing
-    const col = elementColorMap[d.element] || elementColorMap[d.class] || new THREE.Color(0x888888);
-    const mat = new THREE.MeshLambertMaterial({ color: col });
-
-    const pm  = elementRadiusMap[d.element] !== undefined
-              ? elementRadiusMap[d.element]
-              : 70;
-    const px  = (pm / maxRadius) * (defaultAtomRadius / 2);
-    if (!Number.isFinite(px)) {
-      console.error("Bad radius for", d.element, pm, maxRadius);
-    }
-    const geo = new THREE.SphereGeometry(px, 16, 16);
-
-    const mesh = new THREE.Mesh(geo, mat);
+  data.forEach(d=>{
+    const col = elementColorMap[d.element]||elementColorMap[d.class]||new THREE.Color(0x888888);
+    const mat = new THREE.MeshLambertMaterial({color:col});
+    const pm  = elementRadiusMap[d.element]||70;
+    const px  = (pm/maxRadius)*(defaultAtomRadius/2);
+    const geo = new THREE.SphereGeometry(px,16,16);
+    const mesh = new THREE.Mesh(geo,mat);
     mesh.position.copy(d._pos);
-    mesh.userData = { data: d };
+    mesh.userData = {data:d};
     atomGroup.add(mesh);
-    d._mesh = mesh;
   });
   scene.add(atomGroup);
 
-  // —— Bi‑color bond builder ——  
-  function makeBiColorBond(aPos, bPos, colorA, colorB, radius) {
-    const dir     = new THREE.Vector3().subVectors(bPos, aPos);
-    const len     = dir.length();
-    const dirNorm = dir.clone().normalize();
-    const halfLen = len / 2;
-
-    const geo1 = new THREE.CylinderGeometry(radius, radius, halfLen, 8, 1);
-    const matA = new THREE.MeshLambertMaterial({ color: colorA });
-    const meshA = new THREE.Mesh(geo1, matA);
-    const posA  = aPos.clone().add(dirNorm.clone().multiplyScalar(halfLen / 2));
-    meshA.position.copy(posA);
-    meshA.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), dirNorm);
-
-    const geo2 = new THREE.CylinderGeometry(radius, radius, halfLen, 8, 1);
-    const matB = new THREE.MeshLambertMaterial({ color: colorB });
-    const meshB = new THREE.Mesh(geo2, matB);
-    const posB  = aPos.clone().add(dirNorm.clone().multiplyScalar(halfLen + halfLen/2));
-    meshB.position.copy(posB);
-    meshB.quaternion.copy(meshA.quaternion);
-
+  // bi-color bond helper
+  function makeBiColorBond(a,b,ca,cb,r) {
+    const dir = new THREE.Vector3().subVectors(b,a);
+    const len = dir.length(), half = len/2;
+    const norm = dir.clone().normalize();
+    // first half
+    const geo1 = new THREE.CylinderGeometry(r,r,half,8,1);
+    const mA   = new THREE.MeshLambertMaterial({color:ca});
+    const m1   = new THREE.Mesh(geo1,mA);
+    m1.position.copy(a.clone().add(norm.clone().multiplyScalar(half/2)));
+    m1.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), norm);
+    // second half
+    const geo2 = new THREE.CylinderGeometry(r,r,half,8,1);
+    const mB   = new THREE.MeshLambertMaterial({color:cb});
+    const m2   = new THREE.Mesh(geo2,mB);
+    m2.position.copy(a.clone().add(norm.clone().multiplyScalar(half+half/2)));
+    m2.quaternion.copy(m1.quaternion);
     const grp = new THREE.Group();
-    grp.add(meshA, meshB);
+    grp.add(m1,m2);
     return grp;
   }
 
-  // —— Bond rebuild logic ——  
+  // rebuild bonds
   const bondGroup = new THREE.Group();
   scene.add(bondGroup);
-  function rebuildBonds(cnDist, cmDist) {
+  function rebuildBonds(cn,cm) {
     bondGroup.clear();
-    data.forEach((a, i) => {
-      data.slice(i+1).forEach(b => {
-        const dist    = a._pos.distanceTo(b._pos);
+    data.forEach((a,i)=>{
+      data.slice(i+1).forEach(b=>{
+        const dist = a._pos.distanceTo(b._pos);
         const bothNon = a.class!=='M' && b.class!=='M';
         const oneM    = (a.class==='M') !== (b.class==='M');
-        if ((bothNon && dist<=cnDist) || (oneM && dist<=cmDist)) {
-          const colA = elementColorMap[a.element] || elementColorMap[a.class] || new THREE.Color(0x888888);
-          const colB = elementColorMap[b.element] || elementColorMap[b.class] || new THREE.Color(0x888888);
-          bondGroup.add(
-            makeBiColorBond(a._pos, b._pos, colA, colB, defaultLineWidth/10)
-          );
+        if ((bothNon&&dist<=cn)||(oneM&&dist<=cm)) {
+          const ca = elementColorMap[a.element]||elementColorMap[a.class];
+          const cb = elementColorMap[b.element]||elementColorMap[b.class];
+          bondGroup.add(makeBiColorBond(a._pos,b._pos,ca,cb,defaultLineWidth/10));
         }
       });
     });
   }
-  rebuildBonds(defaultCnCutoff, defaultCmCutoff);
+  rebuildBonds(defaultCnCutoff,defaultCmCutoff);
 
-  // —— Raycaster helper ——  
+  // raycaster for picking
   const ray     = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
-  function getIntersect(event) {
+  function getIntersect(ev) {
     const rect = renderer.domElement.getBoundingClientRect();
-    pointer.x = ((event.clientX-rect.left)/rect.width)*2 - 1;
-    pointer.y = -((event.clientY-rect.top)/rect.height)*2 + 1;
-    ray.setFromCamera(pointer, camera);
+    pointer.x = ((ev.clientX-rect.left)/rect.width)*2 - 1;
+    pointer.y = -((ev.clientY-rect.top)/rect.height)*2 + 1;
+    ray.setFromCamera(pointer,camera);
     const hits = ray.intersectObjects(atomGroup.children);
-    return hits.length ? hits[0].object : null;
+    return hits.length?hits[0].object:null;
   }
 
-  // —— Right‑click handling ——  
-  renderer.domElement.addEventListener('contextmenu', event => {
-    event.preventDefault();
-    const mesh = getIntersect(event);
-    if (!mesh) return;
+  // right-click to toggle N/C or open metal menu
+  renderer.domElement.addEventListener('contextmenu',ev=>{
+    ev.preventDefault();
+    const mesh = getIntersect(ev);
+    if(!mesh) return;
     const d = mesh.userData.data;
-
-    if (d.class === 'M') {
-      openMetalMenu(event.clientX, event.clientY, mesh);
+    if(d.class==='M') {
+      openMetalMenu(ev.clientX,ev.clientY,mesh);
     } else {
-      // toggle C/N
-      d.class = (d.class==='N') ? 'C' : 'N';
+      d.class = d.class==='N'?'C':'N';
       mesh.material.color.copy(elementColorMap[d.class]);
-      rebuildBonds(defaultCnCutoff, defaultCmCutoff);
+      rebuildBonds(defaultCnCutoff,defaultCmCutoff);
     }
   });
 
-  // —— Metal menu in grid ——  
-  function openMetalMenu(x, y, mesh) {
+  // metal picker menu
+  function openMetalMenu(x,y,mesh) {
     menu.innerHTML = '';
     menu.style.left = `${x}px`;
     menu.style.top  = `${y}px`;
-
-    Object.keys(elementColorMap)
-      .filter(el => el!=='C' && el!=='N')
-      .forEach(opt => {
+    Object.keys(elementColorMap).filter(el=>el!=='C'&&el!=='N')
+      .forEach(opt=>{
         const btn = document.createElement('div');
         btn.textContent = opt;
-        btn.addEventListener('click', () => {
-          // update data & color
+        btn.addEventListener('click',()=>{
           mesh.userData.data.element = opt;
-          mesh.material.color.copy(
-            elementColorMap[opt] || new THREE.Color(0x888888)
-          );
-
-          // rebuild sphere at new radius
-          const pmNew = elementRadiusMap[opt] !== undefined
-                      ? elementRadiusMap[opt]
-                      : 70;
-          const pxNew = (pmNew / maxRadius) * (defaultAtomRadius / 2);
+          mesh.material.color.copy(elementColorMap[opt]);
+          const pmNew = elementRadiusMap[opt]||70;
+          const pxNew = (pmNew/maxRadius)*(defaultAtomRadius/2);
           mesh.geometry.dispose();
-          mesh.geometry = new THREE.SphereGeometry(pxNew, 16, 16);
-
+          mesh.geometry = new THREE.SphereGeometry(pxNew,16,16);
           menu.classList.remove('visible');
-          rebuildBonds(defaultCnCutoff, defaultCmCutoff);
+          rebuildBonds(defaultCnCutoff,defaultCmCutoff);
         });
         menu.appendChild(btn);
       });
-
     menu.classList.add('visible');
   }
-
-  // hide menu on outside click
-  window.addEventListener('click', e => {
-    if (!menu.contains(e.target)) menu.classList.remove('visible');
+  window.addEventListener('click',e=>{
+    if(!menu.contains(e.target)) menu.classList.remove('visible');
   });
 
-  // —— Show N orders ——  
-  showOrderBtn.addEventListener('click', () => {
-    // 1) Grab the QV label from the title
+  // —— Return DAC ID ——  
+  showOrderBtn.addEventListener('click',()=>{
     const qv = titleEl.innerText;
-
-    // 2) Get the first two metal elements
-    const metalSites = data.filter(d => d.class === 'M');
-    const metals = metalSites.slice(0, 2).map(m => m.element);
-
-    // 3) Collect all the N‑orders
-    const orders = data
-      .filter(d => d.class === 'N')
-      .map(d => d.order - 1);
-
-    // 4) Render in your output div
-    orderOutput.innerText =
-      `${qv}_${metals.join('_')}_${orders.join('')}`;
+    const mets = data.filter(d=>d.class==='M').slice(0,2).map(d=>d.element);
+    const ords = data.filter(d=>d.class==='N').map(d=>d.order-1);
+    orderOutput.innerText = `${qv}_${mets.join('_')}_${ords.join('')}`;
   });
+
+  // —— Download Modified VASP ——  
+  downloadBtn.addEventListener('click',()=>{
+    const dacId = orderOutput.innerText.trim();
+    if(!dacId) {
+      return alert('Please click “Return the DAC ID” first.');
+    }
+    generateVasp(dacId);
+  });
+
+  async function generateVasp(dacId) {
+    try {
+      const [qv, ele1, ele2, ordersStr] = dacId.split('_');
+      const ordersSet = new Set( ordersStr.split('').map(i=>parseInt(i,10)) );
+
+      // 1) fetch and split
+      const resp  = await fetch(`${qv}.vasp`);
+      const text  = await resp.text();
+      const lines = text.split(/\r?\n/);
+
+      // 2) Locate the key POSCAR lines
+      //    species line at index 5, counts at 6, "Direct/Cartesian" at 7
+      const speciesLineIdx = 5;
+      const countsLineIdx  = 6;
+      const species  = lines[speciesLineIdx].trim().split(/\s+/);
+      const counts   = lines[countsLineIdx ].trim().split(/\s+/).map(Number);
+
+      // 3) Build the new (symbol, count) tuples:
+      const tuples = [];
+      // → keep the 1st species as-is
+      tuples.push([ species[0], counts[0] ]);
+
+      // → break the 2nd species into individual count-1 tuples,
+      //    toggling to species[0] when its index is *not* in ordersSet
+      for (let i = 0; i < counts[1]; i++) {
+        const keep = ordersSet.has(i);
+        tuples.push([ keep ? species[1] : species[0], 1 ]);
+      }
+
+      // → the “metals” (3rd & 4th) become ele1, ele2
+      //    collapse each into a single tuple preserving their original counts
+      if (species.length > 2) tuples.push([ele1, counts[2]]);
+      if (species.length > 3) tuples.push([ele2, counts[3]]);
+
+      // 4) Rewrite *only* lines 5 and 6
+      lines[speciesLineIdx] = tuples.map(t=>t[0]).join('   ');
+      lines[countsLineIdx]  = tuples.map(t=>t[1]).join('   ');
+
+      // 5) Download exactly the rest unchanged
+      const out = lines.join('\n');
+      const blob = new Blob([out], {type:'text/plain'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `${dacId}.vasp`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+    } catch(err) {
+      console.error(err);
+      alert('Error generating VASP: ' + err);
+    }
+  }
+
 
   // —— Animate & resize ——  
   function animate() {
@@ -293,7 +314,7 @@ const defaultCmCutoff   = 80;   // C–M / M–C cutoff
   animate();
 
   window.addEventListener('resize', ()=>{
-    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.aspect = container.clientWidth/ container.clientHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(container.clientWidth, container.clientHeight);
   });
