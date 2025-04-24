@@ -4,10 +4,11 @@ html, body {
   padding: 0;
   height: 100%;
 }
+
 body {
   display: flex;
   justify-content: center; /* center the column in the viewport */
-  align-items: center;     /* vertically center if you like */
+  align-items: flex-start;   /* vertically center if you like */
   background: #f0f0f0;
   font-family: sans-serif;
 }
@@ -17,19 +18,20 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;    /* center everything horizontally */
-  row-gap: 20px;          /* space between rows */
+  row-gap: 0px;          /* space between rows */
 }
 
 /* 3) Plot box stays 800×800 */
 .plot {
   width: 600px;
   height: 600px;
+  margin-bottom: 20px;
 }
 
 /* 4) Title styling */
 #title {
   margin: 0;
-  font-size: 60px;
+  font-size: 56px;
   color: #333;
   pointer-events: none;
 }
@@ -37,9 +39,8 @@ body {
 /* 5) Controls styling */
 .controls {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 20px; 
+  gap: 50px; 
 }
 
 #showOrderButton {
@@ -53,7 +54,11 @@ body {
 }
 
 #showOrderButton:hover {
-  background-color: #0056b3;
+  filter: brightness(1.2);
+  transform: scale(1.2);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+  border-color: #222;
+  z-index: 10;
 }
 
 #downloadVasp {
@@ -67,7 +72,11 @@ body {
 }
 
 #downloadVasp:hover {
-  background-color: #0056b3;
+  filter: brightness(1.2);
+  transform: scale(1.2);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+  border-color: #222;
+  z-index: 10;
 }
 
 #orderOutput {
@@ -111,18 +120,11 @@ body {
   background-color: #f0f0f0;
 }
 
-/* fixed instruction box on the left */
 #instruction {
-  position: fixed;
-  top: 50%;
-  left: 20px;
-  transform: translateY(-50%);
-  width: 200px;            /* adjust as needed */
-  padding: 10px;
-  background: rgba(255,255,255,0.9);
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  position: static;
+  width: 100%;
+  padding: 0px;
   font-size: 20px;
-  line-height: 1.4;
-  z-index: 1000;
+  text-align: center;    /* optional */
+  color: #b0b0b0;
 }

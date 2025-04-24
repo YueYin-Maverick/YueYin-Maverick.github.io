@@ -105,7 +105,9 @@ const defaultCmCutoff   = 80;   // C–M / M–C cutoff
     metalSites[1].element = 'Au';
   }
   let nCount = 1;
-  data.forEach(d=>{ if(d.class==='N') d.order = nCount++; });
+  data.forEach(d=>{ 
+    d.canToggleColor = (d.class === 'N');
+    if(d.class==='N') d.order = nCount++; });
 
   // scale positions into a -200..+200 box
   const xs = data.map(d=>d.x), ys = data.map(d=>d.y);
@@ -197,10 +199,11 @@ const defaultCmCutoff   = 80;   // C–M / M–C cutoff
     const d = mesh.userData.data;
     if(d.class==='M') {
       openMetalMenu(ev.clientX,ev.clientY,mesh);
-    } else {
-      d.class = d.class==='N'?'C':'N';
+    } else if (d.canToggleColor) {
+      // only toggle if this atom was originally N
+      d.class = (d.class === 'N') ? 'C' : 'N';
       mesh.material.color.copy(elementColorMap[d.class]);
-      rebuildBonds(defaultCnCutoff,defaultCmCutoff);
+      rebuildBonds(defaultCnCutoff, defaultCmCutoff);
     }
   });
 

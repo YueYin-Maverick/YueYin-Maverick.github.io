@@ -12,7 +12,7 @@
     }
     h1 {
       margin: 20px 0;
-      font-size: 2em;
+      font-size: 56px;
     }
 
     /* wrapper that holds both plots; relative so children can be absolutely positioned */
@@ -38,14 +38,14 @@
     }
     .plot-caption {
       margin-top: 8px;
-      font-size: 1em;
+      font-size: 22px;
       color: #333;
     }
 
     button {
-      font-size: 16px;
+      font-size: 24px;
       padding: 10px 20px;
-      margin: 0 10px 20px;
+      margin: 30px;
       cursor: pointer;
       background-color: #4CAF50;
       color: #fff;
@@ -54,7 +54,11 @@
       transition: background-color 0.2s ease;
     }
     button:hover {
-      background-color: #45a049;
+      filter: brightness(1.2);
+      transform: scale(1.2);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+      border-color: #222;
+      z-index: 10;
     }
 
     footer {
@@ -80,8 +84,8 @@
     </div>
   </div>
 
-  <button onclick="window.location.href='./build/build.html'">Build your DAC</button>
   <button onclick="window.location.href='./phasediagrams.html'">Phase Diagrams</button>
+  <button onclick="window.location.href='./build/build.html'">Build your DAC</button>
 
   <footer>
     <p>&copy; 2025 Yue Yin, Jiangshan He, and Hai Xiao. All rights reserved.</p>

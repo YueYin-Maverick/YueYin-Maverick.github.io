@@ -36,21 +36,18 @@ const elements = [
 {symbol: "Tl", position:103 ,color:"#B9FFB9"}, 
 {symbol: "Pb", position:104 ,color:"#B9FFB9"}, 
 {symbol: "Bi", position:105 ,color:"#B9FFB9"}, 
-{symbol: "Ce", position:148 ,color:"#ACFFFF"}, 
+{symbol: "Ce", position:130 ,color:"#ACFFFF"}, 
 ];
 
 
 const positions = [
-   [1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
    [19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36],
    [37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54],
    [55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72],
    [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90],
    [91, 92, 93, 94, 95, 96, 97, 98, 99,100,101,102,103,104,105,106,107,108],
    [109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126],
-   [127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144],
-   [145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162],
-   [163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180]];
+   [127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144]];
 
 
 const selected = {
@@ -64,17 +61,6 @@ function displayElement(element, index) {
   } else {
     document.getElementById(index === 1 ? "ele1" : "ele2").textContent = "---";
   }
-}
-
-
-function scrollToPlot() {
-  const img = document.getElementById('png-viewer-img');
-  const imgRect = img.getBoundingClientRect();
-  const offset = (window.innerHeight - imgRect.height) / 2;
-  window.scrollTo({
-    top: imgRect.top + window.scrollY - offset,
-    behavior: 'smooth'
-  });
 }
 
 
@@ -100,36 +86,92 @@ function toggleElement(element) {
 }
 
 
+// ——— Clear all .selected & .hover-effect ———
+function clearAllSelections() {
+  elements.forEach(e => {
+    if (e.domElement) e.domElement.classList.remove("selected", "hover-effect");
+  });
+}
+
+// ——— Re-apply .selected to ele1/ele2 ———
+function applySelections() {
+  [selected.ele1, selected.ele2].forEach(el => {
+    if (el && el.domElement) el.domElement.classList.add("selected");
+  });
+}
+
+// ——— Keep hover-effect on whatever’s selected ———
+function updateHoverEffects() {
+  elements.forEach(e => {
+    if (e.domElement) e.domElement.classList.remove("hover-effect");
+  });
+  [selected.ele1, selected.ele2].forEach(el => {
+    if (el && el.domElement) el.domElement.classList.add("hover-effect");
+  });
+}
+
+function updateSelectionInfo() {
+  const info = document.getElementById("selected-elements");
+  if (selected.ele1 && selected.ele2) {
+    info.textContent = `You have selected ${selected.ele1.symbol} and ${selected.ele2.symbol}`;
+  } else if (selected.ele1) {
+    info.textContent = `You have selected ${selected.ele1.symbol}`;
+  } else {
+    info.textContent = "";
+  }
+}
+
+
+// ——— Decide which two are ele1/ele2 ———
+function toggleElement(element) {
+  if (selected.ele1 && selected.ele2) {
+    selected.ele1 = element;
+    delete selected.ele2;
+  } else if (!selected.ele1) {
+    selected.ele1 = element;
+  } else if (!selected.ele2) {
+    selected.ele2 = element;
+  }
+}
+
+// ——— Build the table & hook clicks ———
 function createTable() {
   const table = document.getElementById("periodic-table");
-  for (const positionRow of positions) {
-    for (const position of positionRow) {
-      const element = elements.find((e) => e.position === position);
-      if (element) {
-        const cell = document.createElement("div");
-        cell.classList.add("element");
-
-        cell.innerHTML = `<span class="element-symbol">${element.symbol}</span>`;
-
-        cell.style.backgroundColor = element.color; // Set the element's background color
-        cell.addEventListener("click", () => {
-          toggleElement(element);
-          cell.classList.toggle("selected");
-          displayElement(selected.ele1, 1);
-          displayElement(selected.ele2, 2);
-          displayPlot();
-        });
-
-        element.domElement = cell;
-        table.appendChild(cell);
-      } else {
-        const emptyCell = document.createElement("div");
-        emptyCell.style.width = "40px";
-        emptyCell.style.height = "40px";
-        table.appendChild(emptyCell);
+  for (const row of positions) {
+    for (const pos of row) {
+      const element = elements.find(e => e.position === pos);
+      if (!element) {
+        const empty = document.createElement("div");
+        empty.style.width  = empty.style.height = "40px";
+        table.appendChild(empty);
+        continue;
       }
+      const cell = document.createElement("div");
+      cell.classList.add("element");
+      cell.style.backgroundColor = element.color;
+      cell.innerHTML = `<span class="element-symbol">${element.symbol}</span>`;
+      element.domElement = cell;
+
+      cell.addEventListener("click", () => {
+        toggleElement(element);
+        clearAllSelections();
+        applySelections();
+        updateHoverEffects();
+        updateSelectionInfo();
+        displayPlot();
+      });
+
+      // optional triangle decorator
+      if (["Pm","Ac","Th","Pa","U","Np","Pu","Xe","Kr"].includes(element.symbol)) {
+        const tri = document.createElement("div");
+        tri.classList.add("triangle");
+        cell.appendChild(tri);
+      }
+
+      table.appendChild(cell);
     }
   }
 }
 
+// ——— Initialize ———
 createTable();
